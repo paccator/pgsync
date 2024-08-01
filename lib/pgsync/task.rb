@@ -88,8 +88,13 @@ module PgSync
 
       copy_to_command = "COPY (SELECT #{copy_fields} FROM #{quoted_table}#{sql_clause}) TO STDOUT"
       if opts[:in_batches]
-        raise Error, "Primary key required for --in-batches" if primary_key.empty?
-        primary_key = primary_key.first
+
+        if opts[:batch_key]
+          primary_key = opts[:batch_key]
+        else
+          raise Error, "Primary key required for --in-batches" if primary_key.empty?
+          primary_key = primary_key.first
+        end
 
         destination.truncate(table) if opts[:truncate]
 
